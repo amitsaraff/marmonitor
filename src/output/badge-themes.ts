@@ -24,9 +24,9 @@ export const BADGE_THEMES: Record<string, BadgeTheme> = {
     attentionActive:
       "#[fg={bg},bg=#1e1e2e]#[bold,underscore,fg=#11111b,bg={bg}] {index} #[fg=#45475a,bg={bg}]#[underscore,fg=#cdd6f4,bg=#45475a] {label} #[fg=#45475a,bg=#1e1e2e]#[default]",
     focus: "#[fg=#bac2de,bg=#181825] {text} #[default]",
-    empty: "#[fg=#cdd6f4,bg=#313244] no active #[fg=#313244,bg=#1e1e2e]#[default]",
+    empty: "#[fg=#cdd6f4,bg=#313244] No attention #[fg=#313244,bg=#1e1e2e]#[default]",
     jumpBack:
-      "#[fg=#45475a,bg=#1e1e2e]#[fg=#bac2de,bg=#45475a] ↩ #[fg=#45475a,bg=#1e1e2e]#[default]",
+      "#[fg=#45475a,bg=#1e1e2e]#[fg=#bac2de,bg=#45475a] Back #[fg=#45475a,bg=#1e1e2e]#[default]",
   },
   "basic-mono": {
     badge:
@@ -37,9 +37,9 @@ export const BADGE_THEMES: Record<string, BadgeTheme> = {
       "#[fg=#45475a,bg=#1e1e2e]#[bold,underscore,fg=#cdd6f4,bg=#45475a] {index} #[fg=#1e1e2e,bg=#45475a]#[underscore,fg=#cdd6f4,bg=#1e1e2e] {label} #[fg=#1e1e2e]#[default]",
     focus: "#[fg=#6c7086,bg=#181825] {text} #[default]",
     empty:
-      "#[fg=#313244,bg=#1e1e2e]#[fg=#6c7086,bg=#313244] no active #[fg=#313244,bg=#1e1e2e]#[default]",
+      "#[fg=#313244,bg=#1e1e2e]#[fg=#6c7086,bg=#313244] No attention #[fg=#313244,bg=#1e1e2e]#[default]",
     jumpBack:
-      "#[fg=#313244,bg=#1e1e2e]#[fg=#6c7086,bg=#313244] ↩ #[fg=#313244,bg=#1e1e2e]#[default]",
+      "#[fg=#313244,bg=#1e1e2e]#[fg=#6c7086,bg=#313244] Back #[fg=#313244,bg=#1e1e2e]#[default]",
   },
   block: {
     badge: "#[bold,fg={fg},bg={bg}] {label} #[default]",
@@ -47,8 +47,8 @@ export const BADGE_THEMES: Record<string, BadgeTheme> = {
     attentionActive:
       "#[bold,underscore,fg=#11111b,bg={bg}] {index} #[underscore,fg=#cdd6f4,bg=#45475a] {label} #[default]",
     focus: "#[fg=#bac2de,bg=#181825] {text} #[default]",
-    empty: "#[fg=#cdd6f4,bg=#313244] no active #[default]",
-    jumpBack: "#[fg=#bac2de,bg=#45475a] ↩ #[default]",
+    empty: "#[fg=#cdd6f4,bg=#313244] No attention #[default]",
+    jumpBack: "#[fg=#bac2de,bg=#45475a] Back #[default]",
   },
   "block-mono": {
     badge: "#[bold,fg=#cdd6f4,bg=#313244] {label} #[default]",
@@ -56,16 +56,16 @@ export const BADGE_THEMES: Record<string, BadgeTheme> = {
     attentionActive:
       "#[bold,underscore,fg=#cdd6f4,bg=#45475a] {index} #[underscore,fg=#cdd6f4,bg=#1e1e2e] {label} #[default]",
     focus: "#[fg=#6c7086,bg=#181825] {text} #[default]",
-    empty: "#[fg=#6c7086,bg=#313244] no active #[default]",
-    jumpBack: "#[fg=#6c7086,bg=#313244] ↩ #[default]",
+    empty: "#[fg=#6c7086,bg=#313244] No attention #[default]",
+    jumpBack: "#[fg=#6c7086,bg=#313244] Back #[default]",
   },
   text: {
     badge: "#[fg={bg}]{label}#[default]",
     attention: "#[fg={bg}]{index} {label}#[default]",
     attentionActive: "#[underscore,fg={bg}]{index} {label}#[default]",
     focus: "{text}",
-    empty: "no active",
-    jumpBack: "#[fg=#89b4fa]↩#[default]",
+    empty: "No attention",
+    jumpBack: "#[fg=#89b4fa]Back#[default]",
   },
   "text-mono": {
     badge: "#[fg=#cdd6f4]{label}#[default]",
@@ -73,8 +73,8 @@ export const BADGE_THEMES: Record<string, BadgeTheme> = {
     attentionActive:
       "#[bold,underscore,fg=#cdd6f4]{index}#[default] #[underscore,fg=#6c7086]{label}#[default]",
     focus: "#[fg=#6c7086]{text}#[default]",
-    empty: "#[fg=#6c7086]no active#[default]",
-    jumpBack: "#[fg=#6c7086]↩#[default]",
+    empty: "#[fg=#6c7086]No attention#[default]",
+    jumpBack: "#[fg=#6c7086]Back#[default]",
   },
 };
 

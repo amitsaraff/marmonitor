@@ -87,8 +87,8 @@ describe("block badge themes", () => {
 describe("renderBadge with block themes", () => {
   it("renders block badge with substituted colors", () => {
     const theme = resolveTheme("block");
-    const result = renderBadge(theme, "Cl 3", "#cdd6f4", "#89b4fa");
-    assert.match(result, /Cl 3/);
+    const result = renderBadge(theme, "Claude 3", "#cdd6f4", "#89b4fa");
+    assert.match(result, /Claude 3/);
     assert.match(result, /fg=#cdd6f4/);
     assert.match(result, /bg=#89b4fa/);
     assert.doesNotMatch(result, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
@@ -96,8 +96,8 @@ describe("renderBadge with block themes", () => {
 
   it("renders block-mono badge without dynamic color placeholders", () => {
     const theme = resolveTheme("block-mono");
-    const result = renderBadge(theme, "Cx 1", "#cdd6f4", "#89b4fa");
-    assert.match(result, /Cx 1/);
+    const result = renderBadge(theme, "Codex 1", "#cdd6f4", "#89b4fa");
+    assert.match(result, /Codex 1/);
     assert.match(result, /bg=#313244/);
     assert.doesNotMatch(result, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
   });
@@ -106,9 +106,9 @@ describe("renderBadge with block themes", () => {
 describe("renderAttention with block themes", () => {
   it("renders block attention pill with index and label", () => {
     const theme = resolveTheme("block");
-    const result = renderAttention(theme, 1, "⏳Cl projects/myapp allow", "#f38ba8");
+    const result = renderAttention(theme, 1, "Needs input Claude projects/myapp", "#f38ba8");
     assert.match(result, / 1 /);
-    assert.match(result, /⏳Cl projects\/myapp allow/);
+    assert.match(result, /Needs input Claude projects\/myapp/);
     assert.match(result, /bg=#f38ba8/);
     assert.doesNotMatch(result, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
   });
@@ -117,9 +117,9 @@ describe("renderAttention with block themes", () => {
 describe("renderAttentionActive", () => {
   it("renders active attention pill with underscore styling", () => {
     const theme = resolveTheme("basic");
-    const result = renderAttentionActive(theme, 1, "⏳Cl projects/myapp allow", "#f38ba8");
+    const result = renderAttentionActive(theme, 1, "Needs input Claude projects/myapp", "#f38ba8");
     assert.match(result, / 1 /);
-    assert.match(result, /⏳Cl projects\/myapp allow/);
+    assert.match(result, /Needs input Claude projects\/myapp/);
     assert.match(result, /underscore/);
     assert.match(result, /bg=#f38ba8/);
   });
@@ -135,9 +135,9 @@ describe("renderAttentionActive", () => {
 
   it("renders block style active pill without Powerline glyphs", () => {
     const theme = resolveTheme("block");
-    const result = renderAttentionActive(theme, 2, "🤔Cx api 5s", "#cba6f7");
+    const result = renderAttentionActive(theme, 2, "Thinking Codex api 5s", "#cba6f7");
     assert.match(result, / 2 /);
-    assert.match(result, /🤔Cx api 5s/);
+    assert.match(result, /Thinking Codex api 5s/);
     assert.match(result, /underscore/);
     assert.doesNotMatch(result, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
   });
@@ -162,8 +162,8 @@ describe("renderAttentionActive", () => {
 describe("renderFocus with block themes", () => {
   it("renders focus text in block style with background", () => {
     const theme = resolveTheme("block");
-    const result = renderFocus(theme, "⏳ Claude myapp allow");
-    assert.match(result, /⏳ Claude myapp allow/);
+    const result = renderFocus(theme, "Needs input Claude myapp");
+    assert.match(result, /Needs input Claude myapp/);
     assert.match(result, /bg=#181825/);
   });
 });

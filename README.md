@@ -34,19 +34,19 @@ Running multiple AI coding agents in tmux is now the norm — Claude Code refact
 <p align="center">
   <img src="docs/use_sample.png" alt="marmonitor tmux statusbar" width="640">
   <br>
-  <em>Agent counts, phase badges, and numbered attention pills — all in your tmux bar</em>
+  <em>Agent counts, readable phase labels, and numbered attention pills — all in your tmux bar</em>
 </p>
 
 ### What it does
 
 **tmux statusline** — always visible at the bottom of your terminal:
-- Agent counts (`Cl 12`, `Cx 2`, `Gm 1`) — how many sessions are running
-- Phase alerts (`⏳ 1`, `🤔 2`, `🔧 1`) — which sessions need attention
-- Numbered pills (`1 ⏳Cl my-project allow`, `2 •Cx api-server 6m`) — jump to any session with `Option+1~5`
+- Agent counts (`Claude 12`, `Codex 2`, `Gemini 1`) — how many sessions are running
+- Phase alerts (`Needs input 1`, `Thinking 2`, `Tool 1`) — which sessions need attention
+- Numbered pills (`1 Needs input Claude my-project`, `2 Active Codex api-server 6m`) — jump to any session with `Option+1~5`
 
 **Attention priority** — sessions that need your input come first:
-- ⏳ `permission` (allow waiting) is always #1 — you need to approve
-- 🤔 `thinking` (AI responding) is #2 — result coming soon
+- `Needs input` (`permission`) is always #1 — you need to approve
+- `Thinking` means the AI is responding — result coming soon
 - Then most recently active sessions, so you can quickly return to what you were working on
 
 **Quick jump** — press `Option+1` to jump directly to the #1 attention session's tmux pane. No searching through windows.
@@ -237,14 +237,14 @@ marmonitor activity --json           # JSON output
 
 Activity is collected automatically by the daemon and stored in `~/.config/marmonitor/activity-log/` (7-day retention).
 
-## Phase Icons
+## Session phases
 
-| Icon | Phase | Meaning |
+| Label | Phase | Meaning |
 |------|-------|---------|
-| ⏳ | `permission` | AI requesting tool approval — **user input needed** |
-| 🤔 | `thinking` | AI generating a response |
-| 🔧 | `tool` | Approved tool executing |
-| ✅ | `done` | Response complete, awaiting next instruction |
+| Needs input | `permission` | AI requesting tool approval — **user input needed** |
+| Thinking | `thinking` | AI generating a response |
+| Tool | `tool` | Approved tool executing |
+| Idle | `done` | Response complete, awaiting next instruction |
 
 ## Status Labels
 

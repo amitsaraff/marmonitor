@@ -435,11 +435,40 @@ export function selectRecentSessionFile(
   return latest.path;
 }
 
-function agentShortName(agentName: string): string {
-  if (agentName === "Claude Code") return "Cl";
-  if (agentName === "Codex") return "Cx";
-  if (agentName === "Gemini") return "Gm";
+function agentDisplayName(agentName: string): string {
+  if (agentName === "Claude Code") return "Claude";
   return agentName;
+}
+
+function attentionStatusLabel(kind: AttentionKind, status?: AgentSession["status"]): string {
+  switch (kind) {
+    case "permission":
+      return "Needs input";
+    case "thinking":
+      return "Thinking";
+    case "tool":
+      return "Tool";
+    case "active":
+      return status === "Idle" ? "Idle" : "Active";
+    case "stalled":
+      return "Stalled";
+    case "unmatched":
+      return "Unmatched";
+  }
+}
+
+function buildAttentionLabel(
+  item: Pick<
+    AttentionItem,
+    "kind" | "agentName" | "cwd" | "lastActivityAt" | "lastResponseAt" | "status"
+  >,
+  pathMaxLength: number,
+): string {
+  const agent = agentDisplayName(item.agentName);
+  const path = compactStatuslineDirLabel(item.cwd, pathMaxLength);
+  const time = formatElapsedCompact(item.lastActivityAt ?? item.lastResponseAt);
+  const timeLabel = time ? ` ${time}` : "";
+  return `${attentionStatusLabel(item.kind, item.status)} ${agent} ${path}${timeLabel}`;
 }
 
 function attentionKind(agent: AgentSession): AttentionKind | undefined {
@@ -633,20 +662,7 @@ export function buildAttentionFocusText(
 
   const segments: string[] = [];
   for (const item of detailItems) {
-    const agent = agentShortName(item.agentName);
-    const path = compactStatuslineDirLabel(item.cwd, layout.pathMaxLength);
-    const time = formatElapsedCompact(item.lastActivityAt ?? item.lastResponseAt);
-    if (item.kind === "permission") {
-      segments.push(`⏳${agent} ${path} allow`);
-    } else if (item.kind === "stalled") {
-      segments.push(time ? `⚠${agent} ${path} ${time}` : `⚠${agent} ${path}`);
-    } else if (item.kind === "thinking") {
-      segments.push(time ? `🤔${agent} ${path} ${time}` : `🤔${agent} ${path}`);
-    } else if (item.kind === "tool") {
-      segments.push(time ? `🔧${agent} ${path} ${time}` : `🔧${agent} ${path}`);
-    } else if (item.kind === "active") {
-      segments.push(time ? `•${agent} ${path} ${time}` : `•${agent} ${path}`);
-    }
+    segments.push(buildAttentionLabel(item, layout.pathMaxLength));
   }
 
   return segments.length > 0 ? segments.join(" │ ") : undefined;
@@ -654,23 +670,25 @@ export function buildAttentionFocusText(
 
 export function buildTmuxBadgeSummary(snapshot: StatuslineSnapshot): string {
   const agentBadges = [];
-  if ((snapshot.claudeCount ?? 0) > 0) agentBadges.push(`Cl ${snapshot.claudeCount}`);
-  if ((snapshot.codexCount ?? 0) > 0) agentBadges.push(`Cx ${snapshot.codexCount}`);
-  if ((snapshot.geminiCount ?? 0) > 0) agentBadges.push(`Gm ${snapshot.geminiCount}`);
+  if ((snapshot.claudeCount ?? 0) > 0) agentBadges.push(`Claude ${snapshot.claudeCount}`);
+  if ((snapshot.codexCount ?? 0) > 0) agentBadges.push(`Codex ${snapshot.codexCount}`);
+  if ((snapshot.geminiCount ?? 0) > 0) agentBadges.push(`Gemini ${snapshot.geminiCount}`);
   if (agentBadges.length === 0) agentBadges.push(`AI ${snapshot.aliveCount}`);
 
   const attentionBadges = [];
-  if (snapshot.waitingCount > 0) attentionBadges.push(`⏳ ${snapshot.waitingCount}`);
+  if (snapshot.waitingCount > 0) attentionBadges.push(`Needs input ${snapshot.waitingCount}`);
   if (snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount > 0) {
     attentionBadges.push(
-      `⚠ ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
+      `Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
     );
   }
-  if ((snapshot.thinkingCount ?? 0) > 0) attentionBadges.push(`🤔 ${snapshot.thinkingCount}`);
-  if ((snapshot.toolCount ?? 0) > 0) attentionBadges.push(`🔧 ${snapshot.toolCount}`);
+  if ((snapshot.thinkingCount ?? 0) > 0) attentionBadges.push(`Thinking ${snapshot.thinkingCount}`);
+  if ((snapshot.toolCount ?? 0) > 0) attentionBadges.push(`Tool ${snapshot.toolCount}`);
 
   if (attentionBadges.length === 0) {
-    attentionBadges.push(`✅ ${snapshot.activeCount}`);
+    attentionBadges.push(
+      snapshot.activeCount > 0 ? `Active ${snapshot.activeCount}` : `Idle ${snapshot.aliveCount}`,
+    );
   }
 
   return `${agentBadges.join("  ")}   ${attentionBadges.join("  ")}`;
@@ -682,13 +700,13 @@ export function buildStatusPills(snapshot: StatuslineSnapshot): {
 } {
   const agents: StatusPill[] = [];
   if ((snapshot.claudeCount ?? 0) > 0) {
-    agents.push({ label: `Cl ${snapshot.claudeCount}`, fg: "#1e1e2e", bg: "#fab387" });
+    agents.push({ label: `Claude ${snapshot.claudeCount}`, fg: "#1e1e2e", bg: "#fab387" });
   }
   if ((snapshot.codexCount ?? 0) > 0) {
-    agents.push({ label: `Cx ${snapshot.codexCount}`, fg: "#1e1e2e", bg: "#94e2d5" });
+    agents.push({ label: `Codex ${snapshot.codexCount}`, fg: "#1e1e2e", bg: "#94e2d5" });
   }
   if ((snapshot.geminiCount ?? 0) > 0) {
-    agents.push({ label: `Gm ${snapshot.geminiCount}`, fg: "#1e1e2e", bg: "#89b4fa" });
+    agents.push({ label: `Gemini ${snapshot.geminiCount}`, fg: "#1e1e2e", bg: "#89b4fa" });
   }
   if (agents.length === 0) {
     agents.push({ label: `AI ${snapshot.aliveCount}`, fg: "#1e1e2e", bg: "#cba6f7" });
@@ -696,23 +714,28 @@ export function buildStatusPills(snapshot: StatuslineSnapshot): {
 
   const alerts: StatusPill[] = [];
   if (snapshot.waitingCount > 0) {
-    alerts.push({ label: `⏳ ${snapshot.waitingCount}`, fg: "#11111b", bg: "#f38ba8" });
+    alerts.push({ label: `Needs input ${snapshot.waitingCount}`, fg: "#11111b", bg: "#f38ba8" });
   }
   if (snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount > 0) {
     alerts.push({
-      label: `⚠ ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
+      label: `Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
       fg: "#11111b",
       bg: "#f9e2af",
     });
   }
   if ((snapshot.thinkingCount ?? 0) > 0) {
-    alerts.push({ label: `🤔 ${snapshot.thinkingCount}`, fg: "#11111b", bg: "#cba6f7" });
+    alerts.push({ label: `Thinking ${snapshot.thinkingCount}`, fg: "#11111b", bg: "#cba6f7" });
   }
   if ((snapshot.toolCount ?? 0) > 0) {
-    alerts.push({ label: `🔧 ${snapshot.toolCount}`, fg: "#11111b", bg: "#a6e3a1" });
+    alerts.push({ label: `Tool ${snapshot.toolCount}`, fg: "#11111b", bg: "#a6e3a1" });
   }
   if (alerts.length === 0) {
-    alerts.push({ label: `✅ ${snapshot.activeCount}`, fg: "#11111b", bg: "#a6e3a1" });
+    alerts.push({
+      label:
+        snapshot.activeCount > 0 ? `Active ${snapshot.activeCount}` : `Idle ${snapshot.aliveCount}`,
+      fg: "#11111b",
+      bg: "#a6e3a1",
+    });
   }
 
   return { agents, alerts };
@@ -842,27 +865,7 @@ export function buildTmuxAttentionPills(
   }
 
   const segments = jumpItems.map((item, index) => {
-    const agent = agentShortName(item.agentName);
-    const path = compactStatuslineDirLabel(item.cwd, layout.pathMaxLength);
-    const time = formatElapsedCompact(item.lastActivityAt ?? item.lastResponseAt);
-    const label =
-      item.kind === "permission"
-        ? `⏳${agent} ${path} allow`
-        : item.kind === "thinking"
-          ? time
-            ? `🤔${agent} ${path} ${time}`
-            : `🤔${agent} ${path}`
-          : item.kind === "tool"
-            ? time
-              ? `🔧${agent} ${path} ${time}`
-              : `🔧${agent} ${path}`
-            : item.kind === "active"
-              ? time
-                ? `•${agent} ${path} ${time}`
-                : `•${agent} ${path}`
-              : time
-                ? `⚠${agent} ${path} ${time}`
-                : `⚠${agent} ${path}`;
+    const label = buildAttentionLabel(item, layout.pathMaxLength);
     const isActive = activeAgentPid !== undefined && item.pid === activeAgentPid;
     const render = isActive ? renderAttentionActive : renderAttention;
     return tmuxUserRange(

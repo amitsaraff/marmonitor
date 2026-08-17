@@ -590,7 +590,10 @@ describe("buildStatuslineSummary", () => {
       codexCount: 2,
       geminiCount: 3,
     };
-    assert.equal(buildTmuxBadgeSummary(snapshot), "Cl 14  Cx 2  Gm 3   ⏳ 2  ⚠ 2  🤔 3  🔧 1");
+    assert.equal(
+      buildTmuxBadgeSummary(snapshot),
+      "Claude 14  Codex 2  Gemini 3   Needs input 2  Review 2  Thinking 3  Tool 1",
+    );
     assert.equal(buildStatuslineSummary(snapshot, "tmux-badges"), buildTmuxBadgeSummary(snapshot));
     assert.equal(
       buildStatuslineSummary(snapshot, "wezterm-pills"),
@@ -614,16 +617,16 @@ describe("buildStatuslineSummary", () => {
         codexCount: 2,
         geminiCount: 3,
       },
-      "⏳ Claude mjjo allow",
+      "Needs input Claude mjjo",
     );
-    assert.match(text, /Cl 14/);
-    assert.match(text, /Cx 2/);
-    assert.match(text, /Gm 3/);
-    assert.match(text, /⏳ 2/);
-    assert.match(text, /⚠ 2/);
-    assert.match(text, /🤔 3/);
-    assert.match(text, /🔧 1/);
-    assert.match(text, /Claude mjjo allow/);
+    assert.match(text, /Claude 14/);
+    assert.match(text, /Codex 2/);
+    assert.match(text, /Gemini 3/);
+    assert.match(text, /Needs input 2/);
+    assert.match(text, /Review 2/);
+    assert.match(text, /Thinking 3/);
+    assert.match(text, /Tool 1/);
+    assert.match(text, /Needs input Claude mjjo/);
     assert.match(text, /#\[fg=/);
   });
 
@@ -643,7 +646,7 @@ describe("buildStatuslineSummary", () => {
       geminiCount: 0,
     };
     const text = buildTmuxBadgeBar(snapshot, undefined, "text");
-    assert.match(text, /Cl 3/);
+    assert.match(text, /Claude 3/);
     assert.match(text, /#\[fg=/);
   });
 
@@ -663,7 +666,7 @@ describe("buildStatuslineSummary", () => {
       geminiCount: 0,
     };
     const text = buildTmuxBadgeBar(snapshot, undefined, "text-mono");
-    assert.match(text, /Cl 2/);
+    assert.match(text, /Claude 2/);
     assert.match(text, /#cdd6f4/);
   });
 
@@ -683,8 +686,8 @@ describe("buildStatuslineSummary", () => {
       geminiCount: 0,
     };
     const text = buildTmuxBadgeBar(snapshot, undefined, "block");
-    assert.match(text, /Cl 3/);
-    assert.match(text, /Cx 2/);
+    assert.match(text, /Claude 3/);
+    assert.match(text, /Codex 2/);
     assert.match(text, /bg=/);
     assert.doesNotMatch(text, /\uE0B0/);
     assert.doesNotMatch(text, /\uE0B2/);
@@ -708,7 +711,7 @@ describe("buildStatuslineSummary", () => {
       geminiCount: 0,
     };
     const text = buildTmuxBadgeBar(snapshot, undefined, "block-mono");
-    assert.match(text, /Cl 2/);
+    assert.match(text, /Claude 2/);
     assert.match(text, /#cdd6f4/);
     assert.match(text, /bg=#313244/);
     assert.doesNotMatch(text, /\uE0B0/);
@@ -755,11 +758,11 @@ describe("buildStatuslineSummary", () => {
 
     assert.deepEqual(
       agents.map((pill) => pill.label),
-      ["Cl 14", "Cx 2"],
+      ["Claude 14", "Codex 2"],
     );
     assert.deepEqual(
       alerts.map((pill) => pill.label),
-      ["⏳ 1", "⚠ 3", "🤔 2", "🔧 1"],
+      ["Needs input 1", "Review 3", "Thinking 2", "Tool 1"],
     );
   });
 
@@ -779,14 +782,14 @@ describe("buildStatuslineSummary", () => {
         codexCount: 2,
         geminiCount: 0,
       },
-      "🤔Cl projects/kbank 1d │ ⚠Cx valueofspace/vos-fe-data-eng 1d",
+      "Thinking Claude projects/kbank 1d │ Review Codex valueofspace/vos-fe-data-eng 1d",
     );
 
-    assert.match(text, /^agent\tCl 14\t#1e1e2e\t#fab387/m);
-    assert.match(text, /^agent\tCx 2\t#1e1e2e\t#94e2d5/m);
-    assert.match(text, /^alert\t⏳ 1\t#11111b\t#f38ba8/m);
-    assert.match(text, /^focus\t🤔Cl projects\/kbank 1d\t#bac2de\t#181825/m);
-    assert.match(text, /^focus\t⚠Cx valueofspace\/vos-fe-data-eng 1d\t#bac2de\t#181825/m);
+    assert.match(text, /^agent\tClaude 14\t#1e1e2e\t#fab387/m);
+    assert.match(text, /^agent\tCodex 2\t#1e1e2e\t#94e2d5/m);
+    assert.match(text, /^alert\tNeeds input 1\t#11111b\t#f38ba8/m);
+    assert.match(text, /^focus\tThinking Claude projects\/kbank 1d\t#bac2de\t#181825/m);
+    assert.match(text, /^focus\tReview Codex valueofspace\/vos-fe-data-eng 1d\t#bac2de\t#181825/m);
   });
 });
 
@@ -1064,7 +1067,10 @@ describe("buildAttentionItems", () => {
       },
     ]);
 
-    assert.equal(text, "🤔Cl repo/thinking 10s │ 🔧Cx repo/tool 5s │ •Cl repo/active 8s");
+    assert.equal(
+      text,
+      "Thinking Claude repo/thinking 10s │ Tool Codex repo/tool 5s │ Idle Claude repo/active 8s",
+    );
   });
 
   it("builds condensed focus text from top attention items", () => {
@@ -1099,7 +1105,7 @@ describe("buildAttentionItems", () => {
       },
     ]);
 
-    assert.equal(text, "⏳Cl projects/mjjo allow │ 🤔Cx v/vos-data-service 26s");
+    assert.equal(text, "Needs input Claude projects/mjjo │ Thinking Codex v/vos-data-service 26s");
   });
 
   it("reduces focus item count on narrow widths before truncating everything", () => {
@@ -1139,7 +1145,7 @@ describe("buildAttentionItems", () => {
       60,
     );
 
-    assert.equal(text, "⏳Cl p/mjjo allow");
+    assert.equal(text, "Needs input Claude p/mjjo");
   });
 
   it("returns undefined when only unmatched items exist", () => {
@@ -1209,21 +1215,21 @@ describe("buildAttentionItems", () => {
     );
 
     assert.match(text, / 1 /);
-    assert.match(text, /⏳Cl projects\/mjjo allow/);
+    assert.match(text, /Needs input Claude projects\/mjjo/);
     assert.match(text, / 2 /);
-    assert.match(text, /🤔Cl projects\/kbank 26s/);
+    assert.match(text, /Thinking Claude projects\/kbank 26s/);
     assert.match(text, / 3 /);
-    assert.match(text, /•Cx v\/vos-data-service 10s/);
+    assert.match(text, /Idle Codex v\/vos-data-service 10s/);
     assert.match(text, /#\[bold,fg=/);
   });
 
-  it("shows no active when no attention items exist", () => {
+  it("shows no attention when no attention items exist", () => {
     const text = buildTmuxAttentionPills([], 5);
-    assert.match(text, /no active/);
+    assert.match(text, /No attention/);
     assert.doesNotMatch(text, /all ok/);
   });
 
-  it("shows no active when only unmatched/stalled items exist", () => {
+  it("shows no attention when only unmatched/stalled items exist", () => {
     const text = buildTmuxAttentionPills(
       [
         {
@@ -1245,7 +1251,7 @@ describe("buildAttentionItems", () => {
       ],
       5,
     );
-    assert.match(text, /no active/);
+    assert.match(text, /No attention/);
   });
 
   it("reduces tmux attention pills on narrow widths", () => {
@@ -1285,9 +1291,9 @@ describe("buildAttentionItems", () => {
       60,
     );
 
-    assert.match(text, /⏳Cl p\/mjjo allow/);
-    assert.doesNotMatch(text, /🤔Cl/);
-    assert.doesNotMatch(text, /•Cx/);
+    assert.match(text, /Needs input Claude p\/mjjo/);
+    assert.doesNotMatch(text, /Thinking Claude/);
+    assert.doesNotMatch(text, /Idle Codex/);
   });
 
   it("highlights the active agent pill with underscore styling", () => {
@@ -1355,7 +1361,7 @@ describe("buildAttentionItems", () => {
 
     const text = buildTmuxAttentionPills(items, 5, undefined, "block", 42);
     assert.match(text, /underscore/);
-    assert.match(text, /🤔Cx/);
+    assert.match(text, /Thinking Codex/);
     assert.doesNotMatch(text, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
   });
 
@@ -1388,9 +1394,9 @@ describe("buildAttentionItems", () => {
       "block",
     );
     assert.match(text, / 1 /);
-    assert.match(text, /⏳Cl/);
+    assert.match(text, /Needs input Claude/);
     assert.match(text, / 2 /);
-    assert.match(text, /🤔Cx/);
+    assert.match(text, /Thinking Codex/);
     assert.match(text, /bg=/);
     assert.doesNotMatch(text, /\uE0B0/);
     assert.doesNotMatch(text, /\uE0B4/);

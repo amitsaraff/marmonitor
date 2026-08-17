@@ -67,6 +67,6 @@ describe("tmux statusline click ranges", () => {
     );
 
     assert.match(text, /#\[range=user\|jump-back\]/);
-    assert.match(text, /↩/);
+    assert.match(text, /Back/);
   });
 });
