@@ -13,6 +13,7 @@ import {
   compactStatuslineDirLabel,
   cwdToProjectDirName,
   detectApprovalPromptPhase,
+  detectWorkingPhase,
   determineStatus,
   formatElapsed,
   formatElapsedCompact,
@@ -230,6 +231,18 @@ describe("detectApprovalPromptPhase", () => {
       ),
       "permission",
     );
+  });
+});
+
+describe("detectWorkingPhase", () => {
+  it("detects Codex's live working indicator", () => {
+    assert.equal(detectWorkingPhase("Working (0s • esc to interrupt)"), "thinking");
+    assert.equal(detectWorkingPhase("Working (2.5m • esc to interrupt)"), "thinking");
+  });
+
+  it("does not treat the composer or completed turn as working", () => {
+    assert.equal(detectWorkingPhase("› Implement {feature}"), undefined);
+    assert.equal(detectWorkingPhase("Goal achieved (3m)"), undefined);
   });
 });
 

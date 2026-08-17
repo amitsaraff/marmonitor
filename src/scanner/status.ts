@@ -3,7 +3,7 @@
  */
 
 import type { MarmonitorConfig } from "../config/index.js";
-import { detectApprovalPromptPhase } from "../output/utils.js";
+import { detectApprovalPromptPhase, detectWorkingPhase } from "../output/utils.js";
 import { captureTmuxPaneOutput, resolveTmuxJumpTarget } from "../tmux/index.js";
 import type { AgentSession, SessionPhase, SessionStatus } from "../types.js";
 import {
@@ -130,11 +130,11 @@ export async function detectCliStdoutPhase(
 
   const output = await captureTmuxPaneOutput(target, 30);
   const phase = output
-    ? detectApprovalPromptPhase(
+    ? (detectApprovalPromptPhase(
         output,
         config.status.stdoutHeuristic.approvalPatterns,
         config.status.stdoutHeuristic.clearPatterns,
-      )
+      ) ?? detectWorkingPhase(output))
     : undefined;
   stdoutHeuristicCache.set(agent.pid, { checkedAt: Date.now(), phase });
   return phase;

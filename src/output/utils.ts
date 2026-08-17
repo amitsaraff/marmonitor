@@ -368,6 +368,22 @@ export function detectApprovalPromptPhase(
   return recentMatchIndex >= recentLines.length - 3 ? "permission" : undefined;
 }
 
+/** Detect Codex's visible live-turn indicator from captured tmux output. */
+export function detectWorkingPhase(output: unknown): SessionPhase {
+  if (!output || typeof output !== "string") return undefined;
+  const recentLines = output
+    .split("\n")
+    .map((line) => line.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(-8);
+
+  return recentLines.some((line) =>
+    /^working\s*\(\s*\d+(?:\.\d+)?\s*[smhd]\b.*\besc\s+to\s+interrupt\b/.test(line),
+  )
+    ? "thinking"
+    : undefined;
+}
+
 export function updatePhaseHistory(
   previousPhase: SessionPhase,
   previousHistory: PhaseHistoryEntry[],
