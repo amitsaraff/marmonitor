@@ -583,6 +583,7 @@ describe("buildStatuslineSummary", () => {
       stalledCount: 1,
       unmatchedCount: 1,
       activeCount: 8,
+      doneCount: 4,
       highCpuCount: 1,
       thinkingCount: 3,
       toolCount: 1,
@@ -592,7 +593,7 @@ describe("buildStatuslineSummary", () => {
     };
     assert.equal(
       buildTmuxBadgeSummary(snapshot),
-      "Claude 14  Codex 2  Gemini 3   Needs input 2  Review 2  Thinking 3  Tool 1",
+      "Claude 14  Codex 2  Gemini 3   [Needs input 2]  [Review 2]  [Thinking 3]  [Tool 1]  [Done 4]",
     );
     assert.equal(buildStatuslineSummary(snapshot, "tmux-badges"), buildTmuxBadgeSummary(snapshot));
     assert.equal(
@@ -617,16 +618,16 @@ describe("buildStatuslineSummary", () => {
         codexCount: 2,
         geminiCount: 3,
       },
-      "Needs input Claude mjjo",
+      "[Needs input] mjjo",
     );
     assert.match(text, /Claude 14/);
     assert.match(text, /Codex 2/);
     assert.match(text, /Gemini 3/);
-    assert.match(text, /Needs input 2/);
-    assert.match(text, /Review 2/);
-    assert.match(text, /Thinking 3/);
-    assert.match(text, /Tool 1/);
-    assert.match(text, /Needs input Claude mjjo/);
+    assert.match(text, /\[Needs input 2\]/);
+    assert.match(text, /\[Review 2\]/);
+    assert.match(text, /\[Thinking 3\]/);
+    assert.match(text, /\[Tool 1\]/);
+    assert.match(text, /\[Needs input\] mjjo/);
     assert.match(text, /#\[fg=/);
   });
 
@@ -762,7 +763,7 @@ describe("buildStatuslineSummary", () => {
     );
     assert.deepEqual(
       alerts.map((pill) => pill.label),
-      ["Needs input 1", "Review 3", "Thinking 2", "Tool 1"],
+      ["[Needs input 1]", "[Review 3]", "[Thinking 2]", "[Tool 1]"],
     );
   });
 
@@ -782,14 +783,17 @@ describe("buildStatuslineSummary", () => {
         codexCount: 2,
         geminiCount: 0,
       },
-      "Thinking Claude projects/kbank 1d │ Review Codex valueofspace/vos-fe-data-eng 1d",
+      "[Thinking] projects/kbank (1d) │ [Review] valueofspace/vos-fe-data-eng (1d)",
     );
 
     assert.match(text, /^agent\tClaude 14\t#1e1e2e\t#fab387/m);
     assert.match(text, /^agent\tCodex 2\t#1e1e2e\t#94e2d5/m);
-    assert.match(text, /^alert\tNeeds input 1\t#11111b\t#f38ba8/m);
-    assert.match(text, /^focus\tThinking Claude projects\/kbank 1d\t#bac2de\t#181825/m);
-    assert.match(text, /^focus\tReview Codex valueofspace\/vos-fe-data-eng 1d\t#bac2de\t#181825/m);
+    assert.match(text, /^alert\t\[Needs input 1\]\t#11111b\t#f38ba8/m);
+    assert.match(text, /^focus\t\[Thinking\] projects\/kbank \(1d\)\t#bac2de\t#181825/m);
+    assert.match(
+      text,
+      /^focus\t\[Review\] valueofspace\/vos-fe-data-eng \(1d\)\t#bac2de\t#181825/m,
+    );
   });
 });
 
@@ -1069,7 +1073,7 @@ describe("buildAttentionItems", () => {
 
     assert.equal(
       text,
-      "Thinking Claude repo/thinking 10s │ Tool Codex repo/tool 5s │ Idle Claude repo/active 8s",
+      "[Thinking] repo/thinking (10s) │ [Tool] repo/tool (5s) │ [Idle] repo/active (8s)",
     );
   });
 
@@ -1105,7 +1109,7 @@ describe("buildAttentionItems", () => {
       },
     ]);
 
-    assert.equal(text, "Needs input Claude projects/mjjo │ Thinking Codex v/vos-data-service 26s");
+    assert.equal(text, "[Needs input] projects/mjjo │ [Thinking] v/vos-data-service (26s)");
   });
 
   it("reduces focus item count on narrow widths before truncating everything", () => {
@@ -1145,7 +1149,7 @@ describe("buildAttentionItems", () => {
       60,
     );
 
-    assert.equal(text, "Needs input Claude p/mjjo");
+    assert.equal(text, "[Needs input] p/mjjo");
   });
 
   it("returns undefined when only unmatched items exist", () => {
@@ -1215,11 +1219,11 @@ describe("buildAttentionItems", () => {
     );
 
     assert.match(text, / 1 /);
-    assert.match(text, /Needs input Claude projects\/mjjo/);
+    assert.match(text, /\[Needs input\] projects\/mjjo/);
     assert.match(text, / 2 /);
-    assert.match(text, /Thinking Claude projects\/kbank 26s/);
+    assert.match(text, /\[Thinking\] projects\/kbank \(26s\)/);
     assert.match(text, / 3 /);
-    assert.match(text, /Idle Codex v\/vos-data-service 10s/);
+    assert.match(text, /\[Idle\] v\/vos-data-service \(10s\)/);
     assert.match(text, /#\[bold,fg=/);
   });
 
@@ -1291,9 +1295,9 @@ describe("buildAttentionItems", () => {
       60,
     );
 
-    assert.match(text, /Needs input Claude p\/mjjo/);
-    assert.doesNotMatch(text, /Thinking Claude/);
-    assert.doesNotMatch(text, /Idle Codex/);
+    assert.match(text, /\[Needs input\] p\/mjjo/);
+    assert.doesNotMatch(text, /\[Thinking\]/);
+    assert.doesNotMatch(text, /\[Idle\]/);
   });
 
   it("highlights the active agent pill with underscore styling", () => {
@@ -1361,7 +1365,7 @@ describe("buildAttentionItems", () => {
 
     const text = buildTmuxAttentionPills(items, 5, undefined, "block", 42);
     assert.match(text, /underscore/);
-    assert.match(text, /Thinking Codex/);
+    assert.match(text, /\[Thinking\]/);
     assert.doesNotMatch(text, /[\uE0B0\uE0B2\uE0B4\uE0B6]/);
   });
 
@@ -1394,9 +1398,9 @@ describe("buildAttentionItems", () => {
       "block",
     );
     assert.match(text, / 1 /);
-    assert.match(text, /Needs input Claude/);
+    assert.match(text, /\[Needs input\]/);
     assert.match(text, / 2 /);
-    assert.match(text, /Thinking Codex/);
+    assert.match(text, /\[Thinking\]/);
     assert.match(text, /bg=/);
     assert.doesNotMatch(text, /\uE0B0/);
     assert.doesNotMatch(text, /\uE0B4/);

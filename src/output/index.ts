@@ -694,6 +694,7 @@ export async function renderStatusline(
   const waitingCount = alive.filter((a) => a.phase === "permission").length;
   const stalledCount = alive.filter((a) => a.status === "Stalled").length;
   const activeCount = alive.filter((a) => a.status === "Active").length;
+  const doneCount = alive.filter((a) => a.phase === "done").length;
   const highCpuCount = alive.filter((a) => a.cpuPercent >= 10).length;
   const thinkingCount = alive.filter((a) => a.phase === "thinking").length;
   const toolCount = alive.filter((a) => a.phase === "tool").length;
@@ -707,6 +708,7 @@ export async function renderStatusline(
     stalledCount,
     unmatchedCount: unmatched.length,
     activeCount,
+    doneCount,
     highCpuCount,
     thinkingCount,
     toolCount,

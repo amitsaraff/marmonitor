@@ -41,8 +41,8 @@ Running multiple AI coding agents in tmux is now the norm — Claude Code refact
 
 **tmux statusline** — always visible at the bottom of your terminal:
 - Agent counts (`Claude 12`, `Codex 2`, `Gemini 1`) — how many sessions are running
-- Phase alerts (`Needs input 1`, `Thinking 2`, `Tool 1`) — which sessions need attention
-- Numbered pills (`1 Needs input Claude my-project`, `2 Active Codex api-server 6m`) — jump to any session with `Option+1~5`
+- Phase alerts (`[Needs input 1]`, `[Thinking 2]`, `[Done 3]`) — which sessions need attention
+- Numbered pills (`1 [Needs input] my-project`, `2 [Working] api-server (6m)`) — jump to any session with `Option+1~5`
 
 **Attention priority** — sessions that need your input come first:
 - `Needs input` (`permission`) is always #1 — you need to approve
@@ -244,7 +244,7 @@ Activity is collected automatically by the daemon and stored in `~/.config/marmo
 | Needs input | `permission` | AI requesting tool approval — **user input needed** |
 | Thinking | `thinking` | AI generating a response |
 | Tool | `tool` | Approved tool executing |
-| Idle | `done` | Response complete, awaiting next instruction |
+| Done | `done` | Response complete, awaiting next instruction |
 
 ## Status Labels
 

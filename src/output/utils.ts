@@ -204,6 +204,7 @@ export interface StatuslineSnapshot {
   stalledCount: number;
   unmatchedCount: number;
   activeCount: number;
+  doneCount?: number;
   highCpuCount: number;
   thinkingCount?: number;
   toolCount?: number;
@@ -435,12 +436,11 @@ export function selectRecentSessionFile(
   return latest.path;
 }
 
-function agentDisplayName(agentName: string): string {
-  if (agentName === "Claude Code") return "Claude";
-  return agentName;
-}
-
-function attentionStatusLabel(kind: AttentionKind, status?: AgentSession["status"]): string {
+function attentionStatusLabel(
+  kind: AttentionKind,
+  status?: AgentSession["status"],
+  phase?: SessionPhase,
+): string {
   switch (kind) {
     case "permission":
       return "Needs input";
@@ -449,7 +449,8 @@ function attentionStatusLabel(kind: AttentionKind, status?: AgentSession["status
     case "tool":
       return "Tool";
     case "active":
-      return status === "Idle" ? "Idle" : "Active";
+      if (phase === "done") return "Done";
+      return status === "Idle" ? "Idle" : "Working";
     case "stalled":
       return "Stalled";
     case "unmatched":
@@ -460,15 +461,14 @@ function attentionStatusLabel(kind: AttentionKind, status?: AgentSession["status
 function buildAttentionLabel(
   item: Pick<
     AttentionItem,
-    "kind" | "agentName" | "cwd" | "lastActivityAt" | "lastResponseAt" | "status"
+    "kind" | "cwd" | "lastActivityAt" | "lastResponseAt" | "status" | "phase"
   >,
   pathMaxLength: number,
 ): string {
-  const agent = agentDisplayName(item.agentName);
   const path = compactStatuslineDirLabel(item.cwd, pathMaxLength);
   const time = formatElapsedCompact(item.lastActivityAt ?? item.lastResponseAt);
-  const timeLabel = time ? ` ${time}` : "";
-  return `${attentionStatusLabel(item.kind, item.status)} ${agent} ${path}${timeLabel}`;
+  const timeLabel = time ? ` (${time})` : "";
+  return `[${attentionStatusLabel(item.kind, item.status, item.phase)}] ${path}${timeLabel}`;
 }
 
 function attentionKind(agent: AgentSession): AttentionKind | undefined {
@@ -676,18 +676,23 @@ export function buildTmuxBadgeSummary(snapshot: StatuslineSnapshot): string {
   if (agentBadges.length === 0) agentBadges.push(`AI ${snapshot.aliveCount}`);
 
   const attentionBadges = [];
-  if (snapshot.waitingCount > 0) attentionBadges.push(`Needs input ${snapshot.waitingCount}`);
+  if (snapshot.waitingCount > 0) attentionBadges.push(`[Needs input ${snapshot.waitingCount}]`);
   if (snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount > 0) {
     attentionBadges.push(
-      `Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
+      `[Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}]`,
     );
   }
-  if ((snapshot.thinkingCount ?? 0) > 0) attentionBadges.push(`Thinking ${snapshot.thinkingCount}`);
-  if ((snapshot.toolCount ?? 0) > 0) attentionBadges.push(`Tool ${snapshot.toolCount}`);
+  if ((snapshot.thinkingCount ?? 0) > 0) {
+    attentionBadges.push(`[Thinking ${snapshot.thinkingCount}]`);
+  }
+  if ((snapshot.toolCount ?? 0) > 0) attentionBadges.push(`[Tool ${snapshot.toolCount}]`);
+  if ((snapshot.doneCount ?? 0) > 0) attentionBadges.push(`[Done ${snapshot.doneCount}]`);
 
   if (attentionBadges.length === 0) {
     attentionBadges.push(
-      snapshot.activeCount > 0 ? `Active ${snapshot.activeCount}` : `Idle ${snapshot.aliveCount}`,
+      snapshot.activeCount > 0
+        ? `[Working ${snapshot.activeCount}]`
+        : `[Idle ${snapshot.aliveCount}]`,
     );
   }
 
@@ -714,25 +719,38 @@ export function buildStatusPills(snapshot: StatuslineSnapshot): {
 
   const alerts: StatusPill[] = [];
   if (snapshot.waitingCount > 0) {
-    alerts.push({ label: `Needs input ${snapshot.waitingCount}`, fg: "#11111b", bg: "#f38ba8" });
+    alerts.push({
+      label: `[Needs input ${snapshot.waitingCount}]`,
+      fg: "#11111b",
+      bg: "#f38ba8",
+    });
   }
   if (snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount > 0) {
     alerts.push({
-      label: `Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}`,
+      label: `[Review ${snapshot.stalledCount + snapshot.unmatchedCount + snapshot.riskCount}]`,
       fg: "#11111b",
       bg: "#f9e2af",
     });
   }
   if ((snapshot.thinkingCount ?? 0) > 0) {
-    alerts.push({ label: `Thinking ${snapshot.thinkingCount}`, fg: "#11111b", bg: "#cba6f7" });
+    alerts.push({
+      label: `[Thinking ${snapshot.thinkingCount}]`,
+      fg: "#11111b",
+      bg: "#cba6f7",
+    });
   }
   if ((snapshot.toolCount ?? 0) > 0) {
-    alerts.push({ label: `Tool ${snapshot.toolCount}`, fg: "#11111b", bg: "#a6e3a1" });
+    alerts.push({ label: `[Tool ${snapshot.toolCount}]`, fg: "#11111b", bg: "#a6e3a1" });
+  }
+  if ((snapshot.doneCount ?? 0) > 0) {
+    alerts.push({ label: `[Done ${snapshot.doneCount}]`, fg: "#11111b", bg: "#a6e3a1" });
   }
   if (alerts.length === 0) {
     alerts.push({
       label:
-        snapshot.activeCount > 0 ? `Active ${snapshot.activeCount}` : `Idle ${snapshot.aliveCount}`,
+        snapshot.activeCount > 0
+          ? `[Working ${snapshot.activeCount}]`
+          : `[Idle ${snapshot.aliveCount}]`,
       fg: "#11111b",
       bg: "#a6e3a1",
     });
