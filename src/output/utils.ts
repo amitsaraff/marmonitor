@@ -375,13 +375,30 @@ export function detectWorkingPhase(output: unknown): SessionPhase {
     .split("\n")
     .map((line) => line.trim().toLowerCase())
     .filter(Boolean)
-    .slice(-8);
+    .slice(-30);
 
-  return recentLines.some((line) =>
-    /^working\s*\(\s*\d+(?:\.\d+)?\s*[smhd]\b.*\besc\s+to\s+interrupt\b/.test(line),
-  )
-    ? "thinking"
-    : undefined;
+  const workingPattern =
+    /^(?:•\s*)?working\s*\(\s*\d+(?:\.\d+)?\s*[smhd]\b.*\besc\s+to\s+interrupt\b/;
+  const composerPattern = /^(?:›|❯|>)\s/;
+  const completionPattern = /(?:worked\s+for|goal\s+achieved\b)/;
+
+  for (let index = recentLines.length - 1; index >= 0; index -= 1) {
+    if (!workingPattern.test(recentLines[index])) continue;
+
+    // A quoted example in scrollback can look exactly like the live indicator.
+    // The real indicator is the status line immediately above Codex's composer.
+    const nextComposerIndex = recentLines.findIndex(
+      (line, lineIndex) => lineIndex > index && composerPattern.test(line),
+    );
+    if (nextComposerIndex !== -1 && nextComposerIndex !== index + 1) continue;
+
+    // A completion marker after the indicator means it belonged to an older turn.
+    if (recentLines.slice(index + 1).some((line) => completionPattern.test(line))) continue;
+
+    return "thinking";
+  }
+
+  return undefined;
 }
 
 export function updatePhaseHistory(

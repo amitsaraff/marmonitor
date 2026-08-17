@@ -238,11 +238,40 @@ describe("detectWorkingPhase", () => {
   it("detects Codex's live working indicator", () => {
     assert.equal(detectWorkingPhase("Working (0s • esc to interrupt)"), "thinking");
     assert.equal(detectWorkingPhase("Working (2.5m • esc to interrupt)"), "thinking");
+    assert.equal(
+      detectWorkingPhase(
+        [
+          "• Working (1s • esc to interrupt) · 1 background terminal running",
+          "› Continue",
+          "gpt-5",
+        ].join("\n"),
+      ),
+      "thinking",
+    );
   });
 
   it("does not treat the composer or completed turn as working", () => {
     assert.equal(detectWorkingPhase("› Implement {feature}"), undefined);
     assert.equal(detectWorkingPhase("Goal achieved (3m)"), undefined);
+    assert.equal(
+      detectWorkingPhase(
+        [
+          "The previous status was Working (0s • esc to interrupt).",
+          "─ Worked for 2m 46s ─",
+          "› Continue",
+          "gpt-5",
+        ].join("\n"),
+      ),
+      undefined,
+    );
+    assert.equal(
+      detectWorkingPhase(
+        ["Working (0s • esc to interrupt)", "The turn completed successfully.", "› Continue"].join(
+          "\n",
+        ),
+      ),
+      undefined,
+    );
   });
 });
 
